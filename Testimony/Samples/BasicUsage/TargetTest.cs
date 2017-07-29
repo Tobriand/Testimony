@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Testimony.Attributes;
+using Testimony.Interfaces;
 
 namespace Testimony.Samples
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Testimony
+namespace Testimony.Attributes
 {
     /// <summary>
     ///     Includes TestRequirements defined in <paramref name="testSource"/> when evaluating 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Testimony
+namespace Testimony.Attributes
 {
     /// <summary>
     /// Attribute that can be appended to a test-providing class to indicate that

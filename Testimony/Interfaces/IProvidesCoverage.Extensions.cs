@@ -1,38 +1,17 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Testimony;
+using Testimony.Attributes;
+using System.IO;
+using System.Reflection;
 
-namespace Testimony
+
+namespace Testimony.Interfaces
 {
-    /// <summary>
-    /// Derived interface indicating that a class provides test coverage for a specific type.
-    /// Appends the appropriate extension methods to actually validate that coverage.
-    /// </summary>
-    /// <typeparam name="TTested"></typeparam>
-    public interface IProvidesCoverage<TTested> : IProvidesCoverage
-    {
-    }
-
-    public interface IProvidesCoverage
-    {
-        [TestMethod]
-        void ValidateCoverageTest();
-    }
-
-    public abstract class ProvidesCoverage<TCovered> : IProvidesCoverage<TCovered>
-    {
-        [TestMethod]
-        public void ValidateCoverageTest()
-        {
-            this.ValidateCoverage();
-        }
-    }
-
     public static class ICoverageExtensions
     {
         /// <summary>
@@ -93,9 +72,10 @@ namespace Testimony
             public int GetHashCode(Tuple<string, string> obj)
             {
                 int res;
-                unchecked {
-                    res = 
-                        (obj.Item1 != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.Item1) : 0) + 
+                unchecked
+                {
+                    res =
+                        (obj.Item1 != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.Item1) : 0) +
                         (obj.Item2 != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.Item2) : 0);
                 }
                 return res;
@@ -127,7 +107,7 @@ namespace Testimony
         /// <remarks>Inheritance amongst test classes has not, for now, been considered.</remarks>
         private static IEnumerable<Tuple<string, string>> GetCoverageFromType(Type target)
         {
-            
+
 
             return target.GetMembers()
                 .Select(m => new { Member = m, Attribute = m.GetCustomAttribute<CoversAttribute>() })
@@ -156,7 +136,7 @@ namespace Testimony
             var classLevelDeclarations = target.GetCustomAttributes<ClassTestRequirementsAttribute>();
 
             var baseClassMembers = classLevelDeclarations
-                .Select(cld => new { CLD = cld, Members = cld.GetRelevantMembers(target) }) ;
+                .Select(cld => new { CLD = cld, Members = cld.GetRelevantMembers(target) });
             var interfaceClassMembers = target.GetInterfaces()
                 .SelectMany(i => i.GetCustomAttributes<ClassTestRequirementsAttribute>().Select(cld => new { Interface = i, CLD = cld }))
                 .Where(cld => cld.CLD != null)
@@ -177,9 +157,9 @@ namespace Testimony
                 .Distinct();
         }
 
-        private const string TestException_failMessage = 
+        private const string TestException_failMessage =
             "Did not receive an expected exception after performing the testMethod().";
-        private const string TestException_failMessageUnexpected = 
+        private const string TestException_failMessageUnexpected =
             "Received an unexpected exception of type {0}";
 
 
@@ -190,7 +170,7 @@ namespace Testimony
             )
             where TException : Exception
         {
-            
+
             target.TestException<TException, object>(new Func<object>(() => { testMethod(); return null; }), failMessage, failMessageUnexpectedException);
         }
 
@@ -231,6 +211,4 @@ namespace Testimony
 
 
     }
-
-    
 }

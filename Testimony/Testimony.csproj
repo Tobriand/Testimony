@@ -41,13 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdoptRequirementsFromAttribute.cs" />
-    <Compile Include="ClassTestRequirementsAttribute.cs" />
-    <Compile Include="MemberTargeting.cs" />
+    <Compile Include="Attributes\AdoptRequirementsFromAttribute.cs" />
+    <Compile Include="Attributes\ClassTestRequirementsAttribute.cs" />
+    <Compile Include="BaseClasses\ProvidesCoverage.cs" />
+    <Compile Include="Interfaces\IProvidesCoverage.Extensions.cs" />
+    <Compile Include="Data\MemberTargeting.cs" />
     <Compile Include="ProvidesCoverageDefaultTestsBase.cs" />
-    <Compile Include="IProvidesCoverage.cs" />
+    <Compile Include="Interfaces\IProvidesCoverage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CoversAttribute.cs" />
+    <Compile Include="Attributes\CoversAttribute.cs" />
     <Compile Include="Samples\ClassLevelExample\ClassLevelExample.cs" />
     <Compile Include="Samples\ClassLevelExample\ClassLevelTest.cs" />
     <Compile Include="Samples\ClassLevelExample\IClassLevelExample.cs" />
@@ -58,15 +60,18 @@
     <Compile Include="Samples\PostDesignTime\DesignTimeImplTester.cs" />
     <Compile Include="Samples\PostDesignTime\IDesignTime.cs" />
     <Compile Include="Samples\PostDesignTime\IDesignTimeTest.cs" />
-    <Compile Include="SkipTestAttribute.cs" />
-    <Compile Include="TesterTests.cs" />
-    <Compile Include="TestRequirementAttribute.cs" />
+    <Compile Include="Attributes\SkipTestAttribute.cs" />
+    <Compile Include="Tests\TesterTests.cs" />
+    <Compile Include="Attributes\TestRequirementAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Extensions\MemberTargetting.Extensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

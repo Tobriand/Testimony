@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Testimony
+namespace Testimony.Attributes
 {
     /// <summary>
     /// Decorator that specifies a test that should be implemented in order for a corresponding <see cref="IProvidesCoverage{TTested}"/>

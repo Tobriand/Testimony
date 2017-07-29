@@ -4,6 +4,7 @@ using Testimony;
 using System.Linq;
 using System.Reflection;
 using Testimony.Samples;
+using Testimony.Attributes;
 
 namespace Testimony
 {

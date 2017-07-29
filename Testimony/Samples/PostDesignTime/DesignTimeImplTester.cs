@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Testimony;
+using Testimony.Attributes;
+using Testimony.BaseClasses;
+using Testimony.Interfaces;
 
 namespace Testimony.Samples.PostDesignTime
 {
