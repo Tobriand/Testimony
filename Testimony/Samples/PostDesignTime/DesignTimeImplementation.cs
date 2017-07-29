@@ -13,7 +13,10 @@ namespace Testimony.Samples.PostDesignTime
             get; set;
         }
 
+#pragma warning disable
+        // No need to warn about an unused event, because it's there for member testing, not for use.
         public event EventHandler OmgItsAnEvent;
+#pragma warning restore
 
         public void DeepMethod()
         {

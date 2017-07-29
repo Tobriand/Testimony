@@ -17,13 +17,18 @@ namespace Testimony.Samples.PostDesignTime
     /// </summary>
     [TestClass]
     [SkipTest(nameof(IDesignTime.Method1))]
-    [SkipTest(nameof(IDesignTime.Method1), "RaisesEventOnCall")]
+    //[SkipTest(nameof(IDesignTime.Method1), "RaisesEventOnCall")]
     [SkipTest(nameof(IDesignTime.Method2))]
     [SkipTest(nameof(IDesignTime.OmgItsAnEvent))]
     [SkipTest(nameof(IDesignTime.Foo))]
     [SkipTest(nameof(IDesignTime.DeepMethod))]
-    [AdoptRequirementsFrom(typeof(IDesignTimeTest), typeof(IDesignTime))]
-    public class DesignTimeImplTester : ProvidesCoverage<DesignTimeImplementation>
+    [AdoptRequirementsFrom(typeof(IDesignTimePostHocTestReqs), typeof(IDesignTime))]
+    public class DesignTimeImplTester : ProvidesCoverage<DesignTimeImplementation>, IDesignTimeTests
     {
+        [TestMethod]
+        public void TestMethodOne_RaisesEventOnCall()
+        {
+            
+        }
     }
 }

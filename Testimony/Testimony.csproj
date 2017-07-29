@@ -59,8 +59,9 @@
     <Compile Include="Samples\PostDesignTime\DesignTimeImplementation.cs" />
     <Compile Include="Samples\PostDesignTime\DesignTimeImplTester.cs" />
     <Compile Include="Samples\PostDesignTime\IDesignTime.cs" />
-    <Compile Include="Samples\PostDesignTime\IDesignTimeTest.cs" />
+    <Compile Include="Samples\PostDesignTime\IDesignTimePostHocTestReqs.cs" />
     <Compile Include="Attributes\SkipTestAttribute.cs" />
+    <Compile Include="Samples\PostDesignTime\IDesignTimeTests.cs" />
     <Compile Include="Tests\TesterTests.cs" />
     <Compile Include="Attributes\TestRequirementAttribute.cs" />
   </ItemGroup>

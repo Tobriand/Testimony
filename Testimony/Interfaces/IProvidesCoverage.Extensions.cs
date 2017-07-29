@@ -107,12 +107,49 @@ namespace Testimony.Interfaces
         /// <remarks>Inheritance amongst test classes has not, for now, been considered.</remarks>
         private static IEnumerable<Tuple<string, string>> GetCoverageFromType(Type target)
         {
+            // These are the interfaces that themselves provide coverage.
+            // However, they might not explicitly be test methods - even if they are, we don't care.
+            // TestMethod attributes are only honoured when applied vs the implementation, so the 
+            // same has to apply here. However, we can definitely comapre vs the implementation. We know
+            // it exists, so can grab it, and check if it has a TestMethod attribute.
+            var interfaceMembers = target
+                .GetInterfaces()
+                .Where(i => typeof(IProvidesCoverage).IsAssignableFrom(i))
+                .Where(i => i != typeof(IProvidesCoverage) && (i.IsGenericType ? i.GetGenericTypeDefinition() != typeof(IProvidesCoverage<>) : true))
+                .SelectMany(i => i.GetMembers().Where(m => m.GetCustomAttribute<CoversAttribute>() != null))
+                .Select(m => new { Member = m, Attr = m.GetCustomAttribute<CoversAttribute>()})
+                .ToArray();
 
+            var testMembers = target.GetMembers()
+                .Where(m => m.GetCustomAttribute<TestMethodAttribute>() != null)
+                .ToDictionary(m => m.Name, m => m, StringComparer.InvariantCultureIgnoreCase);
 
-            return target.GetMembers()
+            var coverageViaInterfaceAttr = interfaceMembers
+                .Where(cmi => testMembers.ContainsKey(cmi.Member.Name))
+                .Select(
+                    cmi => new {
+                        MemberName = cmi.Attr.MemberName,
+                        Info = (
+                            cmi.Attr.ProvidesTotalCoverage ?
+                            new string[] { null } :
+                            cmi.Attr.TestItemPerformed
+                        )
+                    }
+                );
+
+            return testMembers.Values
                 .Select(m => new { Member = m, Attribute = m.GetCustomAttribute<CoversAttribute>() })
                 .Where(mi => mi.Attribute != null && mi.Member.GetCustomAttribute<TestMethodAttribute>() != null)
-                .Select(mi => new { MemberName = mi.Attribute.MemberName, Info = (mi.Attribute.ProvidesTotalCoverage ? new string[] { null } : mi.Attribute.TestItemPerformed) })
+                .Select(mi => 
+                    new {
+                        MemberName = mi.Attribute.MemberName,
+                        Info = (
+                            mi.Attribute.ProvidesTotalCoverage ? 
+                            new string[] { null } : 
+                            mi.Attribute.TestItemPerformed
+                            )
+                    })
+                .Union(coverageViaInterfaceAttr)
                 .SelectMany(
                     mi => mi.Info.Select(testName => Tuple.Create(mi.MemberName, testName))
                 )

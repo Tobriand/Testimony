@@ -12,7 +12,7 @@ namespace Testimony.Samples.PostDesignTime
         MemberTargetType.All, 
         MemberTargetAccessibility.InheritedExceptObject | MemberTargetAccessibility.Public
         )]
-    public interface IDesignTimeTest : IDesignTime
+    public interface IDesignTimePostHocTestReqs : IDesignTime
     {
         [TestRequirement("RaisesEventOnCall")]
         new void Method1();
