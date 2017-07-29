@@ -12,7 +12,7 @@ Core Functionality:
 	as potentially needing to be performed.
 - Allows specification by e.g managers or BAs of test interfaces that TestClasses can implement, 
 	that themselves provide coverage.
-
+	 
 Model:
 	Product Interface	-->	Product Class
 	<---->	
