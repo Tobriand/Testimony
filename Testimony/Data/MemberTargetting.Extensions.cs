@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Testimony.Data;
 
-namespace Testimony.Extensions
+namespace Testimony.Data
 {
     public static class MemberTargettingExtensions
     {
