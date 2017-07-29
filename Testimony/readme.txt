@@ -1,4 +1,4 @@
-﻿TestHelpers v0.1
+﻿Testimony v0.1
 
 Provides a relatively lightweight, slightly hacky, approach to specifying at design-
 time the tests that should be performed on an interface or class, and ensuring that 

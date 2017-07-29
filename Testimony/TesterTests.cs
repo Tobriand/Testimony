@@ -1,20 +1,20 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TestHelpers;
+using Testimony;
 using System.Linq;
 using System.Reflection;
-using TestHelpers.Samples;
+using Testimony.Samples;
 
-namespace TestHelpers
+namespace Testimony
 {
     [TestClass]
     public class TesterTests : ProvidesCoverageDefaultTestsBase
     {
-        [TestMethod]
-        public override void DecorateMeWithTestMethod()
-        {
+        //[TestMethod]
+        //public override void DecorateMeWithTestMethod()
+        //{
             
-        }
+        //}
 
         [TestMethod]
         public void Tester_InterfacesCanProvideAttributes()

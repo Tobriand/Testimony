@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TestHelpers")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("Testimony")]
+[assembly: AssemblyDescription("A lightweight coverage-testing framework for VS Community Edition")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TestHelpers")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyProduct("Testimony")]
+[assembly: AssemblyCopyright("Copyright ©  2017 Toby Jacobs")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

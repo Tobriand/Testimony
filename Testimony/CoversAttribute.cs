@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestHelpers
+namespace Testimony
 {
     /// <summary>
     /// Attribute that specifies that a method provides some level of coverage for a method or property.

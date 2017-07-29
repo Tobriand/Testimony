@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestHelpers.Samples
+namespace Testimony.Samples
 {
     /// <summary>
     /// The test defined in this class will pass. Note the attribute that targets a specific 

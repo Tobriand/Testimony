@@ -1,12 +1,13 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestHelpers
+namespace Testimony
 {
     /// <summary>
     /// Derived interface indicating that a class provides test coverage for a specific type.
@@ -21,6 +22,15 @@ namespace TestHelpers
     {
         [TestMethod]
         void ValidateCoverageTest();
+    }
+
+    public abstract class ProvidesCoverage<TCovered> : IProvidesCoverage<TCovered>
+    {
+        [TestMethod]
+        public void ValidateCoverageTest()
+        {
+            this.ValidateCoverage();
+        }
     }
 
     public static class ICoverageExtensions
@@ -43,25 +53,69 @@ namespace TestHelpers
 
             // Get anything explicit from the type...
             var coverage = GetCoverageFromType(testerType);
-            var expected = GetTestRequirementsFromType(testedType);
+            var skips = GetSkipTestsFromType(testerType);
+            coverage = coverage.Union(skips).ToList();
 
-            var coverageHs = new HashSet<Tuple<string, string>>(coverage);
+            var adoptions = GetAdoptionsForTested(testerType, testedType);
+            var expected = GetTestRequirementsFromType(testedType);
+            expected = expected.Union(adoptions);
+
+            var coverageHs = new HashSet<Tuple<string, string>>(coverage, new InvariantCultureIgnoreCaseTupleComparer());
             var failed = new List<Tuple<string, string>>();
             foreach (var testDef in expected)
             {
-                if (!coverage.Contains(testDef))
+                if (!coverageHs.Contains(testDef))
                 {
                     failed.Add(testDef);
                 }
             }
             if (failed.Count > 0)
             {
-                var msg = string.Join("\n\t", failed.Select(i => i.ToString()));
-                Assert.Fail($"Coverage did not meet the specified requirements. The following items were missing: \n\t{msg}");
+                var msg = string.Join($"{Environment.NewLine}\t", failed.Select(i => i.ToString()));
+                msg = $"Coverage for {testedType.Name} provided by {testerType.Name} did not meet the specified requirements. The following items were missing: \n\t{msg}";
+                Console.WriteLine(msg);
+                Assert.Fail($"Coverage did not meet the specified requirements. See test output for details.");
                 return false;
             }
 
             return true;
+        }
+
+        private class InvariantCultureIgnoreCaseTupleComparer : IEqualityComparer<Tuple<string, string>>
+        {
+            public bool Equals(Tuple<string, string> x, Tuple<string, string> y)
+            {
+                return
+                    StringComparer.InvariantCultureIgnoreCase.Equals(x.Item1, y.Item1) &&
+                    StringComparer.InvariantCultureIgnoreCase.Equals(x.Item2, y.Item2);
+            }
+
+            public int GetHashCode(Tuple<string, string> obj)
+            {
+                int res;
+                unchecked {
+                    res = 
+                        (obj.Item1 != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.Item1) : 0) + 
+                        (obj.Item2 != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(obj.Item2) : 0);
+                }
+                return res;
+            }
+        }
+
+        private static IEnumerable<Tuple<string, string>> GetAdoptionsForTested(Type testerType, Type testedType)
+        {
+            var attribs = testerType
+                .GetCustomAttributes<AdoptRequirementsFromAttribute>();
+            var validAdoptionSources = attribs
+                .Where(arfa => arfa.IsValid())
+                .Where(arfa => arfa.Original.IsAssignableFrom(testedType))
+                .ToList();
+            foreach (var adoptionSource in validAdoptionSources)
+                Console.WriteLine($"Adopting tests from {adoptionSource.TestSource.Name} by virtue of {adoptionSource.Original.Name}");
+            return validAdoptionSources
+                .SelectMany(arfa => GetTestRequirementsFromType(arfa.TestSource))
+                .Distinct()
+                .ToList();
         }
 
         /// <summary>
@@ -73,12 +127,25 @@ namespace TestHelpers
         /// <remarks>Inheritance amongst test classes has not, for now, been considered.</remarks>
         private static IEnumerable<Tuple<string, string>> GetCoverageFromType(Type target)
         {
+            
+
             return target.GetMembers()
                 .Select(m => new { Member = m, Attribute = m.GetCustomAttribute<CoversAttribute>() })
                 .Where(mi => mi.Attribute != null && mi.Member.GetCustomAttribute<TestMethodAttribute>() != null)
                 .Select(mi => new { MemberName = mi.Attribute.MemberName, Info = (mi.Attribute.ProvidesTotalCoverage ? new string[] { null } : mi.Attribute.TestItemPerformed) })
                 .SelectMany(
-                    mi => mi.Info.Select(testName => Tuple.Create(mi.MemberName, testName)));
+                    mi => mi.Info.Select(testName => Tuple.Create(mi.MemberName, testName))
+                )
+                ;
+        }
+
+        private static List<Tuple<string, string>> GetSkipTestsFromType(Type target)
+        {
+            return target
+                    .GetCustomAttributes<SkipTestAttribute>()
+                    .Where(sta => sta.Member != null)
+                    .Select(sta => sta.GetTestDef(true))
+                    .ToList();
         }
 
         private static IEnumerable<Tuple<string, string>> GetTestRequirementsFromType(Type target)
@@ -86,13 +153,27 @@ namespace TestHelpers
             var baseMembers = target.GetMembers().Where(m => m.GetCustomAttribute<TestRequirementAttribute>() != null);
             var interfaceMembers = target.GetInterfaces().SelectMany(i => i.GetMembers().Where(m => m.GetCustomAttribute<TestRequirementAttribute>() != null));
             var members = baseMembers.Union(interfaceMembers).Distinct();
+            var classLevelDeclarations = target.GetCustomAttributes<ClassTestRequirementsAttribute>();
 
-            return members
+            var baseClassMembers = classLevelDeclarations
+                .Select(cld => new { CLD = cld, Members = cld.GetRelevantMembers(target) }) ;
+            var interfaceClassMembers = target.GetInterfaces()
+                .SelectMany(i => i.GetCustomAttributes<ClassTestRequirementsAttribute>().Select(cld => new { Interface = i, CLD = cld }))
+                .Where(cld => cld.CLD != null)
+                .Select(icld => new { CLD = icld.CLD, Members = icld.CLD.GetRelevantMembers(icld.Interface) });
+            var classMembers = baseClassMembers.Union(interfaceClassMembers)
+                .SelectMany(cldi => cldi.CLD.GlobalTests.Select(tn => new { TestName = tn, Members = cldi.Members }))
+                .SelectMany(nm => nm.Members.Select(m => Tuple.Create(m.Name, nm.TestName)))
+                .Distinct();
+
+            var memberItems = members
                 .Select(m => new { Member = m, Attribute = m.GetCustomAttribute<TestRequirementAttribute>() })
                 .Select(mi => new { MemberName = mi.Member.Name, Tests = mi.Attribute.Tests ?? new string[] { null } })
                 .SelectMany(
                     mi => mi.Tests.Select(testName => Tuple.Create(mi.MemberName, testName))
-                )
+                );
+            return classMembers
+                .Union(memberItems)
                 .Distinct();
         }
 
